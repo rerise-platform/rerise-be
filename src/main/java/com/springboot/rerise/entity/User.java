@@ -52,13 +52,6 @@ public class User implements UserDetails {
         this.birth = birth;
         this.role = role;
     }
-    public void setCharacters(Characters characters) {
-        this.characters = characters;
-    }
-
-    public Characters getCharacters() {
-        return this.characters;
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

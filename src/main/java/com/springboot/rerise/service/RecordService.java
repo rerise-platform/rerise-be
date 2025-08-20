@@ -4,7 +4,6 @@ import com.springboot.rerise.dto.DailyRecordDto;
 import com.springboot.rerise.entity.DailyRecord;
 import com.springboot.rerise.entity.User;
 import com.springboot.rerise.repository.DailyRecordRepository;
-import com.springboot.rerise.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
