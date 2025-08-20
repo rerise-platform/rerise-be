@@ -40,6 +40,10 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "character_id") // DB 컬럼명: character_id
+    private Characters characters;
+
     @Builder
     public User(String email, String password, String nickname, Date birth, UserRole role) {
         this.email = email;
@@ -47,6 +51,13 @@ public class User implements UserDetails {
         this.nickname = nickname;
         this.birth = birth;
         this.role = role;
+    }
+    public void setCharacters(Characters characters) {
+        this.characters = characters;
+    }
+
+    public Characters getCharacters() {
+        return this.characters;
     }
 
     @Override

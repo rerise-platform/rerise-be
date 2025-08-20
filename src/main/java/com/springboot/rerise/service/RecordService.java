@@ -40,7 +40,6 @@ public class RecordService {
         User currentUser = optionalUser
                 .orElseThrow(() -> new EntityNotFoundException("User not found."));
 
-        // 3. 나머지 로직은 동일
         DailyRecord record = recordRepository
                 .findByUserAndRecordedAt(currentUser, dto.getRecordedAt())
                 .orElseGet(DailyRecord::new);
