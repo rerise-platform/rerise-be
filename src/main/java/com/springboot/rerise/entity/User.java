@@ -40,9 +40,8 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "character_id") // DB 컬럼명: character_id
-    private Characters characters;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private UserCharacter userCharacter;
 
     @Builder
     public User(String email, String password, String nickname, Date birth, UserRole role) {
@@ -88,3 +87,4 @@ public class User implements UserDetails {
         return true;
     }
 }
+

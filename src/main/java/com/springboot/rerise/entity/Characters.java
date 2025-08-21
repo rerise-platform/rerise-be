@@ -24,7 +24,7 @@ public class Characters {
     private String characterType;
 
     @Column(name = "character_description")
-    private String Description;
+    private String description;
 
     @Column(name = "keyword1")
     private String keyword1;
