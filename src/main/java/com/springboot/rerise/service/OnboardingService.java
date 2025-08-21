@@ -5,6 +5,7 @@ import com.springboot.rerise.dto.OnboardingResultResponseDTO;
 import com.springboot.rerise.entity.Characters;
 import com.springboot.rerise.entity.OnboardingAnswer;
 import com.springboot.rerise.entity.User;
+import com.springboot.rerise.entity.UserCharacter;
 import com.springboot.rerise.repository.CharacterRepository;
 import com.springboot.rerise.repository.OnboardingAnswerRepository;
 import com.springboot.rerise.repository.UserRepository;
@@ -97,9 +98,18 @@ public class OnboardingService {
             onboardingAnswerRepository.save(entity);
         }
 
-        // 4. User 테이블에 캐릭터 업데이트
+        // 4. UserCharacter 생성 및 User에 연결
         User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
-        user.setCharacters(characters);
+
+
+        UserCharacter userCharacter = new UserCharacter();
+        userCharacter.setUser(user);
+        userCharacter.setCharacter(characters);
+        userCharacter.setLevel(1);
+        userCharacter.setExperience(0);
+        userCharacter.setObtainedDate(java.time.LocalDateTime.now());
+        
+        user.setUserCharacter(userCharacter);
         userRepository.save(user);
 
 
