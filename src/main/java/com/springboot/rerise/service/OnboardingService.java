@@ -5,6 +5,7 @@ import com.springboot.rerise.dto.OnboardingResultResponseDTO;
 import com.springboot.rerise.entity.Characters;
 import com.springboot.rerise.entity.OnboardingAnswer;
 import com.springboot.rerise.entity.User;
+import com.springboot.rerise.entity.UserCharacter;
 import com.springboot.rerise.repository.CharacterRepository;
 import com.springboot.rerise.repository.OnboardingAnswerRepository;
 import com.springboot.rerise.repository.UserRepository;
@@ -97,10 +98,23 @@ public class OnboardingService {
             onboardingAnswerRepository.save(entity);
         }
 
+
         // 4. User 테이블에 캐릭터 업데이트
-        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
-        user.setCharacters(characters);
-        userRepository.save(user);
+        // 1. 사용자의 UserCharacter 객체를 가져옵니다. 만약 없다면 새로 생성합니다.
+        UserCharacter userCharacter = currentUser.getUserCharacter();
+        if (userCharacter == null) {
+            userCharacter = new UserCharacter();
+        }
+
+        // 2. UserCharacter 객체에 필요한 정보를 설정합니다.
+        userCharacter.setCharacter(characters); // 결정된 캐릭터 타입(Characters) 설정
+        userCharacter.setUser(currentUser); // UserCharacter와 User의 양방향 관계 설정
+
+        // 3. User 엔티티에 완성된 UserCharacter를 설정합니다.
+        currentUser.setUserCharacter(userCharacter);
+
+        // 4. User를 저장합니다. Cascade 설정에 따라 UserCharacter도 함께 저장/업데이트됩니다.
+        userRepository.save(currentUser);
 
 
         // 5. 결과 DTO 반환
