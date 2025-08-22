@@ -35,7 +35,7 @@ public class DailyMissionService {
         
         LocalDate today = LocalDate.now();
         
-        if (userDailyMissionsRepository.existsByUserUser_idAndAssignedDate(userId, today)) {
+        if (userDailyMissionsRepository.existsByUser_UserIdAndAssignedDate(userId, today)) {
             return getTodayMissions(userId);
         }
         
@@ -70,7 +70,7 @@ public class DailyMissionService {
         UserDailyMissions mission = userDailyMissionsRepository.findById(userDailyMissionId)
             .orElseThrow(() -> new RuntimeException("미션을 찾을 수 없습니다."));
         
-        if (!mission.getUser().getUser_id().equals(userId)) {
+        if (!mission.getUser().getUserId().equals(userId)) {
             throw new RuntimeException("권한이 없습니다.");
         }
         

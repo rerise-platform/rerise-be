@@ -27,7 +27,7 @@ public class DailyMissionController {
         String userInput = request.getOrDefault("userInput", "오늘 하루 괜찮은 기분이에요");
         
         List<DailyMissionResponseDTO> missions = dailyMissionService
-            .generateDailyMissions(user.getUser_id(), userInput);
+            .generateDailyMissions(user.getUserId(), userInput);
         
         return ResponseEntity.ok(missions);
     }
@@ -37,7 +37,7 @@ public class DailyMissionController {
             @AuthenticationPrincipal User user) {
         
         List<DailyMissionResponseDTO> missions = dailyMissionService
-            .getTodayMissions(user.getUser_id());
+            .getTodayMissions(user.getUserId());
         
         return ResponseEntity.ok(missions);
     }
@@ -48,7 +48,7 @@ public class DailyMissionController {
             @RequestBody MissionCompletionRequestDTO request) {
         
         DailyMissionResponseDTO completedMission = dailyMissionService
-            .completeMission(user.getUser_id(), request.getUserDailyMissionId());
+            .completeMission(user.getUserId(), request.getUserDailyMissionId());
         
         return ResponseEntity.ok(completedMission);
     }
