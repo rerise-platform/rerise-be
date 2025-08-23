@@ -23,6 +23,9 @@ public class Characters {
     @Column(name = "character_type")
     private String characterType;
 
+    @Column(name = "character_stage")
+    private String characterStage;
+
     @Column(name = "character_description")
     private String description;
 
