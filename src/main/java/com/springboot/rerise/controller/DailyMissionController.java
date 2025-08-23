@@ -4,6 +4,7 @@ import com.springboot.rerise.dto.DailyMissionResponseDTO;
 import com.springboot.rerise.dto.MissionCompletionRequestDTO;
 import com.springboot.rerise.entity.User;
 import com.springboot.rerise.service.DailyMissionService;
+import com.springboot.rerise.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,13 +19,18 @@ import java.util.Map;
 public class DailyMissionController {
     
     private final DailyMissionService dailyMissionService;
+    private final UserService userService;
     
     @PostMapping("/daily")
     public ResponseEntity<List<DailyMissionResponseDTO>> generateDailyMissions(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal String email,
             @RequestBody Map<String, String> request) {
         
         String userInput = request.getOrDefault("userInput", "오늘 하루 괜찮은 기분이에요");
+        
+        // 이메일로 사용자 ID 조회
+        User user = userService.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         
         List<DailyMissionResponseDTO> missions = dailyMissionService
             .generateDailyMissions(user.getUser_id(), userInput);
@@ -34,7 +40,11 @@ public class DailyMissionController {
     
     @GetMapping("/today")
     public ResponseEntity<List<DailyMissionResponseDTO>> getTodayMissions(
-            @AuthenticationPrincipal User user) {
+            @AuthenticationPrincipal String email) {
+        
+        // 이메일로 사용자 ID 조회
+        User user = userService.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         
         List<DailyMissionResponseDTO> missions = dailyMissionService
             .getTodayMissions(user.getUser_id());
@@ -44,8 +54,12 @@ public class DailyMissionController {
     
     @PostMapping("/complete")
     public ResponseEntity<DailyMissionResponseDTO> completeMission(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal String email,
             @RequestBody MissionCompletionRequestDTO request) {
+        
+        // 이메일로 사용자 ID 조회
+        User user = userService.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         
         DailyMissionResponseDTO completedMission = dailyMissionService
             .completeMission(user.getUser_id(), request.getUserDailyMissionId());

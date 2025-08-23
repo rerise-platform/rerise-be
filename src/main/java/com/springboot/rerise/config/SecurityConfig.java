@@ -29,19 +29,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
-                .httpBasic().disable()
-                .csrf().disable()
-                .cors().configurationSource(corsConfigurationSource())
-                .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
+                .httpBasic(httpBasic -> httpBasic.disable())
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
-                .authorizeRequests()
-                .requestMatchers("/api/v1/signup", "/api/v1/login", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .requestMatchers("/api/v1").authenticated()
-                .requestMatchers("/api/v1/admin/**").hasAuthority(UserRole.ADMIN.name())
-                .anyRequest().permitAll()
-                .and().build();
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/v1/signup", "/api/v1/login", "/api/v1/test/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/api/v1/**", "/api/missions/**").authenticated()
+                        .requestMatchers("/api/v1/admin/**").hasAuthority(UserRole.ADMIN.name())
+                        .anyRequest().authenticated()
+                )
+                .build();
     }
 
     @Bean

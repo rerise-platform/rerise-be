@@ -98,18 +98,23 @@ public class DailyMissionService {
             selectedMissions.add(themeMissions.get(i));
         }
         
-        while (selectedMissions.size() < regularMissionsNeeded) {
+        int whileLoopCount = 0;
+        while (selectedMissions.size() < regularMissionsNeeded && whileLoopCount < 10) {
+            whileLoopCount++;
+            
             List<Missions> fallbackMissions = missionsRepository.findByLevelTier(userLevel);
             Collections.shuffle(fallbackMissions);
             
+            boolean added = false;
             for (Missions mission : fallbackMissions) {
                 if (!selectedMissions.contains(mission)) {
                     selectedMissions.add(mission);
+                    added = true;
                     break;
                 }
             }
             
-            if (selectedMissions.size() < regularMissionsNeeded && fallbackMissions.isEmpty()) {
+            if (!added) {
                 List<Missions> allMissions = missionsRepository.findAllRandomly();
                 for (Missions mission : allMissions) {
                     if (!selectedMissions.contains(mission)) {
@@ -118,6 +123,10 @@ public class DailyMissionService {
                     }
                 }
             }
+        }
+        
+        if (whileLoopCount >= 10) {
+            log.warn("미션 선택에서 최대 시도 횟수에 도달했습니다. 현재 선택된 미션: {}", selectedMissions.size());
         }
         
         List<Missions> specialMissions = missionsRepository.findByTheoryAndLevelTier(theory, userLevel);
