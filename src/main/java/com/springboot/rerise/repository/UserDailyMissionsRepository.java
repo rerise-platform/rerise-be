@@ -12,11 +12,12 @@ import java.util.List;
 @Repository
 public interface UserDailyMissionsRepository extends JpaRepository<UserDailyMissions, Long> {
     
-    @Query("SELECT udm FROM UserDailyMissions udm WHERE udm.user.userId = :userId AND udm.assignedDate = :date")
+    @Query("SELECT udm FROM UserDailyMissions udm WHERE udm.user.user_id = :userId AND udm.assignedDate = :date")
     List<UserDailyMissions> findByUserIdAndAssignedDate(@Param("userId") Long userId, @Param("date") LocalDate date);
     
-    @Query("SELECT udm FROM UserDailyMissions udm WHERE udm.user.userId = :userId AND udm.assignedDate = :date AND udm.status = 'PENDING'")
+    @Query("SELECT udm FROM UserDailyMissions udm WHERE udm.user.user_id = :userId AND udm.assignedDate = :date AND udm.status = 'PENDING'")
     List<UserDailyMissions> findPendingMissionsByUserAndDate(@Param("userId") Long userId, @Param("date") LocalDate date);
     
-    boolean existsByUser_UserIdAndAssignedDate(Long userId, LocalDate assignedDate);
+    @Query("SELECT CASE WHEN COUNT(udm) > 0 THEN true ELSE false END FROM UserDailyMissions udm WHERE udm.user.user_id = :userId AND udm.assignedDate = :assignedDate")
+    boolean existsByUserUser_idAndAssignedDate(@Param("userId") Long userId, @Param("assignedDate") LocalDate assignedDate);
 }

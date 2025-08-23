@@ -60,15 +60,8 @@ public class RecordService {
             throw new IllegalStateException("User is not authenticated.");
         }
 
-        // 1. Principal에서 이메일(String)을 안전하게 가져옵니다.
-        Object principal = authentication.getPrincipal();
-        String email;
-
-        if (principal instanceof UserDetails) {
-            email = ((UserDetails) principal).getUsername();
-        } else {
-            email = (String) principal;
-        }
+        // 1. Principal에서 이메일(String)을 가져옵니다.
+        String email = (String) authentication.getPrincipal();
 
         // 2. 이메일을 사용해 데이터베이스에서 실제 User 엔티티를 조회합니다.
         User currentUser = userService.findByEmail(email)

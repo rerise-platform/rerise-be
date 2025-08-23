@@ -1,6 +1,7 @@
 package com.springboot.rerise.entity;
 
 import jakarta.persistence.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +23,9 @@ public class Characters {
 
     @Column(name = "character_type")
     private String characterType;
+
+    @Column(name = "character_stage")
+    private String characterStage;
 
     @Column(name = "character_description")
     private String description;

@@ -16,7 +16,6 @@ import java.util.List;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class GeminiService {
     
     @Value("${gemini.api.key}")
@@ -25,8 +24,22 @@ public class GeminiService {
     @Value("${gemini.api.url}")
     private String apiUrl;
     
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    
+    public GeminiService() {
+        this.restTemplate = new RestTemplate();
+        // 타임아웃 설정 (30초)
+        restTemplate.setRequestFactory(createTimeoutRequestFactory());
+    }
+    
+    private org.springframework.http.client.ClientHttpRequestFactory createTimeoutRequestFactory() {
+        org.springframework.http.client.SimpleClientHttpRequestFactory factory = 
+            new org.springframework.http.client.SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(10000); // 연결 타임아웃 10초
+        factory.setReadTimeout(30000);    // 읽기 타임아웃 30초
+        return factory;
+    }
     
     public List<String> analyzeUserState(String userInput, String recentDiaryContext) {
         try {
@@ -49,10 +62,11 @@ public class GeminiService {
         } catch (Exception e) {
             log.error("Gemini API 호출 중 오류 발생", e);
         }
-        
-        return getDefaultThemes();
+
+
+        return List.of();
     }
-    
+
     public List<String> analyzeUserState(String userInput) {
         return analyzeUserState(userInput, null);
     }
@@ -87,6 +101,14 @@ public class GeminiService {
     }
     
     private String callGeminiAPI(GeminiRequestDTO request) {
+        // API 키 유효성 검사
+        if (apiKey == null || apiKey.trim().isEmpty()) {
+            log.error("GEMINI_API_KEY 환경변수가 설정되지 않았습니다.");
+            return null;
+        }
+        
+        log.info("Gemini API 호출 시작: URL = {}", apiUrl);
+        
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -94,27 +116,29 @@ public class GeminiService {
             String url = apiUrl + "?key=" + apiKey;
             HttpEntity<GeminiRequestDTO> entity = new HttpEntity<>(request, headers);
             
+            log.info("요청 데이터: {}", request);
+            
             ResponseEntity<GeminiResponseDTO> response = restTemplate.exchange(
                 url, HttpMethod.POST, entity, GeminiResponseDTO.class
             );
+            
+            log.info("응답 상태: {}", response.getStatusCode());
             
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
                 GeminiResponseDTO responseBody = response.getBody();
                 if (responseBody.getCandidates() != null && !responseBody.getCandidates().isEmpty()) {
                     GeminiResponseDTO.Candidate candidate = responseBody.getCandidates().get(0);
                     if (candidate.getContent() != null && candidate.getContent().getParts() != null) {
-                        return candidate.getContent().getParts().get(0).getText();
+                        String result = candidate.getContent().getParts().get(0).getText();
+                        log.info("Gemini API 응답: {}", result);
+                        return result;
                     }
                 }
             }
         } catch (Exception e) {
-            log.error("Gemini API 호출 실패", e);
+            log.error("Gemini API 호출 실패 - URL: {}, 에러: {}", apiUrl, e.getMessage(), e);
         }
         return null;
-    }
-    
-    private List<String> getDefaultThemes() {
-        return Arrays.asList("마음보기", "몸돌보기", "마음나누기");
     }
     
     private boolean isValidTheory(String theory) {

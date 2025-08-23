@@ -1,5 +1,6 @@
 package com.springboot.rerise.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.springboot.rerise.config.UserRole;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -40,6 +41,7 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+    @JsonManagedReference
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private UserCharacter userCharacter;
 
