@@ -1,10 +1,8 @@
 package com.springboot.rerise.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -12,14 +10,16 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "user_characters")
 public class UserCharacter {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_character_id")
     private Long userCharacterId;
-    
+
+    @JsonBackReference
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -27,13 +27,24 @@ public class UserCharacter {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "character_id", nullable = false)
     private Characters character;
-    
+
+    @Builder.Default
     @Column(name = "level", nullable = false)
-    private int level = 1;
-    
+    private Integer level = 1;
+
+    @Builder.Default
+    @Column(name = "character_stage", nullable = false)
+    private Integer stage = 1;
+
+    @Builder.Default
     @Column(name = "experience", nullable = false)
-    private int experience = 0;
-    
+    private Integer experience = 0;
+
+    @Builder.Default
+    @Column(name = "point", nullable = false)
+    private Integer point = 0;
+
+    @Builder.Default
     @Column(name = "obtained_date", nullable = false)
     private LocalDateTime obtainedDate = LocalDateTime.now();
 }
