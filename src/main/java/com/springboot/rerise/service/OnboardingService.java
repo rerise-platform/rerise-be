@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -36,12 +37,12 @@ public class OnboardingService {
     private static final Map<Integer, Map<Integer, String>> typeMapping = new HashMap<>();
 
     static {
-        // 예시: 1번 질문에서 1번 답변 선택 시 "TYPE_A", 2번 답변 선택 시 "TYPE_B"
+        // 예시: 1번 질문에서 1번 답변 선택 시 "TYPE_A", 2번 답변 선택 시 "tory"
         Map<Integer, String> optionMap = Map.of(
-                1, "TYPE_A",
-                2, "TYPE_B",
-                3, "TYPE_C",
-                4, "TYPE_D"
+                1, "mony",
+                2, "tory",
+                3, "pory",
+                4, "koko"
         );
         // 1번~8번 질문에 동일한 매핑 적용
         for (int i = 1; i <= 8; i++) {
@@ -49,6 +50,7 @@ public class OnboardingService {
         }
     }
 
+    @Transactional
     public OnboardingResultResponseDTO processOnboardingAnswers(List<AnswerDTO> answers) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -64,10 +66,10 @@ public class OnboardingService {
 
         //1. 캐릭터별 점수 계산
         Map<String, Integer> characterScores = new HashMap<>();
-        characterScores.put("TYPE_A", 0);
-        characterScores.put("TYPE_B", 0);
-        characterScores.put("TYPE_C", 0);
-        characterScores.put("TYPE_D", 0);
+        characterScores.put("mony", 0);
+        characterScores.put("tory", 0);
+        characterScores.put("pory", 0);
+        characterScores.put("koko", 0);
 
         for (AnswerDTO answer : answers) {
             int questionNumber = answer.getQuestionNumber();
@@ -82,7 +84,7 @@ public class OnboardingService {
         String highestType = characterScores.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
-                .orElse("TYPE_A"); // 기본값
+                .orElse("mony"); // 기본값
 
         Characters characters = characterRepository.findByCharacterType(highestType);
         if (characters == null) {
@@ -109,6 +111,17 @@ public class OnboardingService {
         // 2. UserCharacter 객체에 필요한 정보를 설정합니다.
         userCharacter.setCharacter(characters); // 결정된 캐릭터 타입(Characters) 설정
         userCharacter.setUser(currentUser); // UserCharacter와 User의 양방향 관계 설정
+        
+        // 3. 초기값 설정 (새로 생성된 경우에만)
+        if (userCharacter.getLevel() == null || userCharacter.getLevel() == 0) {
+            userCharacter.setLevel(1);
+        }
+        if (userCharacter.getExperience() == null) {
+            userCharacter.setExperience(0);
+        }
+        if (userCharacter.getStage() == null) {
+            userCharacter.setStage(1);
+        }
 
         // 3. User 엔티티에 완성된 UserCharacter를 설정합니다.
         currentUser.setUserCharacter(userCharacter);

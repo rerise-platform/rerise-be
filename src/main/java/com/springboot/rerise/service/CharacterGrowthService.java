@@ -31,7 +31,8 @@ public class CharacterGrowthService {
             throw new IllegalStateException("UserCharacter not found for the user");
         }
 
-        userCharacter.setExperience(userCharacter.getExperience() + gainExp);
+        int currentExp = userCharacter.getExperience() != null ? userCharacter.getExperience() : 0;
+        userCharacter.setExperience(currentExp + gainExp);
         System.out.println("경험치 추가됨. 현재 경험치: " + userCharacter.getExperience());
 
         // 레벨업 및 진화 상태를 체크하고 업데이트합니다.
@@ -46,7 +47,7 @@ public class CharacterGrowthService {
         do{
             levelUp = false;
             int nextLevel = userCharacter.getLevel() + 1;
-            long requiredExp = getTotalExpForLevel(nextLevel);
+            int requiredExp = getTotalExpForLevel(nextLevel);
 
             if(userCharacter.getExperience() >= requiredExp){
                 userCharacter.setLevel(nextLevel);
@@ -78,25 +79,25 @@ public class CharacterGrowthService {
     }
 
     //목표 레벨에 도달하기 위해 필요한 총 누적 경험치
-    public long getTotalExpForLevel(int level){
+    public int getTotalExpForLevel(int level){
         if (level <= 1) return 0;
 
         // Lv 2 ~ 10: 레벨당 100 XP
         if (level <= 10) {
-            return (long) (level - 1) * 100;
+            return (level - 1) * 100;
         }
         // Lv 11 ~ 25: 레벨당 300 XP
         if (level <= 25) {
             // Lv 10까지의 누적 XP(1000) + 추가 XP
-            return 1000 + (long) (level - 10) * 300;
+            return 1000 + (level - 10) * 300;
         }
         // Lv 26 ~ 40: 레벨당 700 XP
         if (level <= 40) {
             // Lv 25까지의 누적 XP(5500) + 추가 XP
-            return 5500 + (long) (level - 25) * 700;
+            return 5500 + (level - 25) * 700;
         }
         // Lv 41 ~ 50: 레벨당 1500 XP
         // Lv 40까지의 누적 XP(16000) + 추가 XP
-        return 16000 + (long) (level - 40) * 1500;
+        return 16000 + (level - 40) * 1500;
     }
 }
