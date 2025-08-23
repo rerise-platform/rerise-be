@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.sql.Date;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -14,9 +16,8 @@ public class JoinRequest {
     private String email;
     private String password;
     private String passwordCheck;
-
     private String nickname;
-
+    private Date birth;
 
 
     public User toEntity() {
@@ -24,6 +25,7 @@ public class JoinRequest {
                 .email(this.email)
                 .password(this.password)
                 .nickname(this.nickname)
+                .birth(this.birth)
                 .role(UserRole.USER)
                 .build();
     }
@@ -34,6 +36,7 @@ public class JoinRequest {
                 .email(this.email)
                 .password(encodedPassword)
                 .nickname(this.nickname)
+                .birth(this.birth)
                 .role(UserRole.USER)
                 .build();
     }
