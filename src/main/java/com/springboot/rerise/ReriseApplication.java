@@ -16,7 +16,7 @@ public class ReriseApplication {
         System.setProperty("DB_USER", dotenv.get("DB_USER"));
         System.setProperty("DB_PASS", dotenv.get("DB_PASS"));
         System.setProperty("JWT_SECRET", dotenv.get("JWT_SECRET"));
-
+        System.setProperty("GEMINI_API_KEY", dotenv.get("GEMINI_API_KEY"));
         // 3. 스프링 부트 실행
         SpringApplication.run(ReriseApplication.class, args);
     }

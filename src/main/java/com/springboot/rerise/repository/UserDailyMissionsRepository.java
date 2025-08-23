@@ -18,5 +18,6 @@ public interface UserDailyMissionsRepository extends JpaRepository<UserDailyMiss
     @Query("SELECT udm FROM UserDailyMissions udm WHERE udm.user.user_id = :userId AND udm.assignedDate = :date AND udm.status = 'PENDING'")
     List<UserDailyMissions> findPendingMissionsByUserAndDate(@Param("userId") Long userId, @Param("date") LocalDate date);
     
-    boolean existsByUserUser_idAndAssignedDate(Long userId, LocalDate assignedDate);
+    @Query("SELECT CASE WHEN COUNT(udm) > 0 THEN true ELSE false END FROM UserDailyMissions udm WHERE udm.user.user_id = :userId AND udm.assignedDate = :assignedDate")
+    boolean existsByUserUser_idAndAssignedDate(@Param("userId") Long userId, @Param("assignedDate") LocalDate assignedDate);
 }
