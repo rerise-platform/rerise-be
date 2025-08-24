@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/missions")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class ProofMissionController {
 
@@ -23,7 +23,7 @@ public class ProofMissionController {
     private final UserService userService;
 
     // 사용자가 인증 자료를 제출하는 엔드포인트
-    @PostMapping("/weekly/submit")
+    @PostMapping("/missions/weekly/submit")
     public ResponseEntity<String> submitProof(
             @AuthenticationPrincipal String email,
             @RequestBody ProofSubmitRequestDto requestDto) {
@@ -34,20 +34,20 @@ public class ProofMissionController {
         return ResponseEntity.ok("인증 자료가 성공적으로 제출되었습니다. 관리자의 승인을 기다려주세요.");
     }
     //승인 대기 중인 미션 목록 조회
-    @GetMapping("/submissions")
+    @GetMapping("/admin/submissions")
     public ResponseEntity<List<SubmissionListDto>> getPendingSubmissions() {
         return ResponseEntity.ok(proofMissionService.getPendingSubmissions());
     }
 
     //승인 대기 중인 미션 상세 조회
-    @GetMapping("/submissions/{userProofMissionId}")
+    @GetMapping("/admin/submissions/{userProofMissionId}")
     public ResponseEntity<SubmissionDetailDto> getSubmissionDetails(@PathVariable Long userProofMissionId) {
         return ResponseEntity.ok(proofMissionService.getSubmissionDetails(userProofMissionId));
     }
 
     // 관리자가 미션을 승인/거절
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/approve")
+    @PostMapping("/admin/approve")
     public ResponseEntity<Object> approveMission(
             @RequestBody ProofApprovalRequestDto approvalDto) {
 

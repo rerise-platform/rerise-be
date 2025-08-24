@@ -24,7 +24,6 @@ public class SecurityConfig {
     // JwtTokenFilter를 의존성 주입받도록 추가합니다.
     private final JwtTokenFilter jwtTokenFilter;
 
-    @Value("${springboot.jwt.secret}")
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -35,9 +34,9 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/signup", "/api/v1/login", "/api/v1/test/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api/v1/**", "/api/missions/**").authenticated()
-                        .requestMatchers("/api/v1/admin/**").hasAuthority(UserRole.ADMIN.name())
+                        .requestMatchers("/api/v1/signup", "/api/v1/login").permitAll()
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN") // ⬅️ 구체적인 경로를 먼저 정의
+                        .requestMatchers("/api/v1/**", "/api/missions/**").authenticated() // ⬅️ 그 다음 일반적인 경로를 정의
                         .anyRequest().authenticated()
                 )
                 .build();
