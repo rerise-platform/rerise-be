@@ -24,8 +24,8 @@ public class Missions {
     @Column(name = "theme", nullable = false, length = 50)
     private String theme;
     
-    @Column(name = "level_tier", nullable = false)
-    private int levelTier;
+    @Column(name = "mission_level", nullable = false)
+    private int missionLevel;
     
     @Enumerated(EnumType.STRING)
     @Column(name = "theory", nullable = false)

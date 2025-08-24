@@ -9,13 +9,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "JWT 로그인 API", description = "회원가입 및 로그인을 위한 API")
 @RestController
@@ -62,11 +63,11 @@ public class JwtLoginController {
     @PostMapping("/login")
     public String login(@RequestBody LoginRequest loginRequest) {
         User user = userService.login(loginRequest);
-        if(user == null) {
+        if (user == null) {
             return "로그인 아이디 또는 비밀번호가 틀렸습니다.";
         }
 
-        String jwtToken = JwtTokenUtil.createToken(user.getEmail(), secretKey, expireTimeMs);
+        String jwtToken = JwtTokenUtil.createToken(user.getEmail(), user.getRole(), secretKey, expireTimeMs);
         return jwtToken;
     }
 }

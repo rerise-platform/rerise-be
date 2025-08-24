@@ -141,11 +141,120 @@ public class GeminiService {
         return null;
     }
     
+    /**
+     * 사용자의 일주일치 데이터를 분석하여 적절한 심리학 이론, 테마, 요약문장을 생성
+     */
+    public WeeklyMissionAnalysis analyzeWeeklyMissionNeeds(
+            String emotionSummary, 
+            String diarySummary, 
+            String missionProfileSummary) {
+        
+        try {
+            String prompt = String.format(
+                "사용자의 최근 7일간 데이터를 분석하여 이번 주 미션 방향을 결정해주세요.\n\n" +
+                "=== 감정 데이터 ===\n%s\n\n" +
+                "=== 일기 요약 ===\n%s\n\n" +
+                "=== 온보딩 기반 선호도 ===\n%s\n\n" +
+                "다음 형식으로 정확히 응답해주세요:\n" +
+                "THEORY: [BEHAVIORAL_ACTIVATION, COGNITIVE_RESTRUCTURING, MINDFULNESS, SOCIAL_CONNECTION, GRATITUDE_PRACTICE 중 1개]\n" +
+                "THEMES: [마음보기, 몸돌보기, 마음나누기, 공간만들기, 사람연결 중 3개, 쉼표로 구분]\n" +
+                "SUMMARY: [사용자 상황을 반영한 격려 메시지 2줄, 각 줄은 50자 이내]\n" +
+                "LEVEL: [1, 2, 3 중 권장 난이도]",
+                emotionSummary, diarySummary, missionProfileSummary
+            );
+            
+            GeminiRequestDTO request = createGeminiRequest(prompt);
+            String response = callGeminiAPI(request);
+            
+            if (response != null && !response.trim().isEmpty()) {
+                return parseWeeklyMissionResponse(response);
+            }
+            
+        } catch (Exception e) {
+            log.error("주간 미션 분석 중 오류 발생", e);
+        }
+        
+        // 기본값 반환
+        return new WeeklyMissionAnalysis(
+            "MINDFULNESS", 
+            Arrays.asList("마음보기", "몸돌보기", "마음나누기"),
+            "이번 주도 차근차근 나아가보세요.\n작은 변화가 큰 성장을 만듭니다.",
+            2
+        );
+    }
+    
+    private WeeklyMissionAnalysis parseWeeklyMissionResponse(String response) {
+        try {
+            String[] lines = response.split("\n");
+            String theory = "MINDFULNESS";
+            List<String> themes = Arrays.asList("마음보기", "몸돌보기", "마음나누기");
+            String summary = "이번 주도 차근차근 나아가보세요.\n작은 변화가 큰 성장을 만듭니다.";
+            int level = 2;
+            
+            for (String line : lines) {
+                line = line.trim();
+                if (line.startsWith("THEORY:")) {
+                    String theoryCandidate = line.substring(7).trim();
+                    if (isValidTheory(theoryCandidate)) {
+                        theory = theoryCandidate;
+                    }
+                } else if (line.startsWith("THEMES:")) {
+                    String themesStr = line.substring(7).trim();
+                    String[] themeArray = themesStr.split(",");
+                    themes = Arrays.stream(themeArray)
+                            .map(String::trim)
+                            .limit(3)
+                            .collect(java.util.stream.Collectors.toList());
+                } else if (line.startsWith("SUMMARY:")) {
+                    summary = line.substring(8).trim();
+                } else if (line.startsWith("LEVEL:")) {
+                    try {
+                        level = Integer.parseInt(line.substring(6).trim());
+                        if (level < 1 || level > 3) level = 2;
+                    } catch (NumberFormatException e) {
+                        level = 2;
+                    }
+                }
+            }
+            
+            return new WeeklyMissionAnalysis(theory, themes, summary, level);
+            
+        } catch (Exception e) {
+            log.error("Gemini 응답 파싱 오류", e);
+            return new WeeklyMissionAnalysis(
+                "MINDFULNESS", 
+                Arrays.asList("마음보기", "몸돌보기", "마음나누기"),
+                "이번 주도 차근차근 나아가보세요.\n작은 변화가 큰 성장을 만듭니다.",
+                2
+            );
+        }
+    }
+    
     private boolean isValidTheory(String theory) {
         List<String> validTheories = Arrays.asList(
             "BEHAVIORAL_ACTIVATION", "COGNITIVE_RESTRUCTURING", 
             "MINDFULNESS", "SOCIAL_CONNECTION", "GRATITUDE_PRACTICE"
         );
         return validTheories.contains(theory);
+    }
+    
+    // 응답 데이터 클래스
+    public static class WeeklyMissionAnalysis {
+        private final String theory;
+        private final List<String> themes;
+        private final String summary;
+        private final int recommendedLevel;
+        
+        public WeeklyMissionAnalysis(String theory, List<String> themes, String summary, int recommendedLevel) {
+            this.theory = theory;
+            this.themes = themes;
+            this.summary = summary;
+            this.recommendedLevel = recommendedLevel;
+        }
+        
+        public String getTheory() { return theory; }
+        public List<String> getThemes() { return themes; }
+        public String getSummary() { return summary; }
+        public int getRecommendedLevel() { return recommendedLevel; }
     }
 }

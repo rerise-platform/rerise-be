@@ -31,6 +31,8 @@ public class OnboardingService {
     private CharacterRepository characterRepository;
     @Autowired
     private UserService userService;
+    @Autowired
+    private MissionProfileService missionProfileService;
 
 
     // 가중치 Map<질문번호, Map<선택지번호, 타입>>
@@ -62,7 +64,7 @@ public class OnboardingService {
         User currentUser = userService.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
 
-        Long userId = currentUser.getUser_id();
+        Long userId = currentUser.getUserId();
 
         //1. 캐릭터별 점수 계산
         Map<String, Integer> characterScores = new HashMap<>();
@@ -86,7 +88,7 @@ public class OnboardingService {
                 .map(Map.Entry::getKey)
                 .orElse("mony"); // 기본값
 
-        Characters characters = characterRepository.findByCharacterType(highestType);
+        Characters characters = characterRepository.findFirstByCharacterType(highestType);
         if (characters == null) {
             // 해당 타입의 캐릭터가 DB에 없는 경우 예외 처리
             throw new IllegalArgumentException("Character type not found in database: " + highestType);
@@ -129,15 +131,17 @@ public class OnboardingService {
         // 4. User를 저장합니다. Cascade 설정에 따라 UserCharacter도 함께 저장/업데이트됩니다.
         userRepository.save(currentUser);
 
+        // 5. 온보딩 답변 기반 미션 프로필 생성
+        missionProfileService.createUserMissionProfile(userId, answers);
 
-        // 5. 결과 DTO 반환
+        // 6. 결과 DTO 반환
         return getResultDTO(userId, highestType);
     }
 
 
     private OnboardingResultResponseDTO getResultDTO(Long userId, String characterType) {
         // 1. DB에서 characterType에 해당하는 Characters 엔티티를 조회
-        Characters character = characterRepository.findByCharacterType(characterType);
+        Characters character = characterRepository.findFirstByCharacterType(characterType);
 
         if (character == null) {
             throw new EntityNotFoundException("Character type not found in database: " + characterType);

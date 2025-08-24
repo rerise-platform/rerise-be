@@ -33,7 +33,7 @@ public class DailyMissionController {
             .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         
         List<DailyMissionResponseDTO> missions = dailyMissionService
-            .generateDailyMissions(user.getUser_id(), userInput);
+            .generateDailyMissions(user.getUserId(), userInput);
         
         return ResponseEntity.ok(missions);
     }
@@ -47,7 +47,7 @@ public class DailyMissionController {
             .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         
         List<DailyMissionResponseDTO> missions = dailyMissionService
-            .getTodayMissions(user.getUser_id());
+            .getTodayMissions(user.getUserId());
         
         return ResponseEntity.ok(missions);
     }
@@ -62,7 +62,7 @@ public class DailyMissionController {
             .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         
         DailyMissionResponseDTO completedMission = dailyMissionService
-            .completeMission(user.getUser_id(), request.getUserDailyMissionId());
+            .completeMission(user.getUserId(), request.getUserDailyMissionId());
         
         return ResponseEntity.ok(completedMission);
     }
