@@ -30,13 +30,22 @@ public class DailyMissionService {
     private final GeminiService geminiService;
     
     public List<DailyMissionResponseDTO> generateDailyMissions(Long userId, String userInput) {
+        log.info("=== Daily Mission Generation Started ===");
+        log.info("User ID: {}, User Input: {}", userId, userInput);
+        
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         
         LocalDate today = LocalDate.now();
+        log.info("Today: {}", today);
         
-        if (userDailyMissionsRepository.existsByUserUser_idAndAssignedDate(userId, today)) {
-            return getTodayMissions(userId);
+        boolean existsToday = userDailyMissionsRepository.existsByUserUserIdAndAssignedDate(userId, today);
+        log.info("Missions already exist for today: {}", existsToday);
+        
+        if (existsToday) {
+            List<DailyMissionResponseDTO> todayMissions = getTodayMissions(userId);
+            log.info("Returning existing missions count: {}", todayMissions.size());
+            return todayMissions;
         }
         
         String recentDiaryContext = getRecentDiaryContext(user);
@@ -70,7 +79,7 @@ public class DailyMissionService {
         UserDailyMissions mission = userDailyMissionsRepository.findById(userDailyMissionId)
             .orElseThrow(() -> new RuntimeException("미션을 찾을 수 없습니다."));
         
-        if (!mission.getUser().getUser_id().equals(userId)) {
+        if (!mission.getUser().getUserId().equals(userId)) {
             throw new RuntimeException("권한이 없습니다.");
         }
         
@@ -88,9 +97,22 @@ public class DailyMissionService {
     }
     
     private List<Missions> selectMissions(List<String> themes, Missions.MissionTheory theory, int userLevel) {
+        log.info("=== Mission Selection Started ===");
+        log.info("Themes: {}, Theory: {}, User Level: {}", themes, theory, userLevel);
+        
         List<Missions> selectedMissions = new ArrayList<>();
         
         List<Missions> themeMissions = missionsRepository.findByThemesAndLevelTier(themes, userLevel);
+        log.info("Found {} theme missions for level <= {}", themeMissions.size(), userLevel);
+        
+        // 전체 미션 개수 확인
+        List<Missions> allMissions = missionsRepository.findAll();
+        log.info("Total missions in database: {}", allMissions.size());
+        
+        // Level 1 미션 개수 확인  
+        List<Missions> level1Missions = missionsRepository.findByLevelTier(1);
+        log.info("Level 1 missions in database: {}", level1Missions.size());
+        
         Collections.shuffle(themeMissions);
         
         int regularMissionsNeeded = 4;
@@ -115,8 +137,8 @@ public class DailyMissionService {
             }
             
             if (!added) {
-                List<Missions> allMissions = missionsRepository.findAllRandomly();
-                for (Missions mission : allMissions) {
+                List<Missions> allMissionsForFallback = missionsRepository.findAllRandomly();
+                for (Missions mission : allMissionsForFallback) {
                     if (!selectedMissions.contains(mission)) {
                         selectedMissions.add(mission);
                         break;

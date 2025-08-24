@@ -12,6 +12,7 @@ import java.util.Optional;
 @Repository
 public interface DailyRecordRepository extends JpaRepository<DailyRecord, Long> {
     List<DailyRecord> findByUserAndRecordedAtBetween(User user, LocalDate startDate, LocalDate endDate);
+    List<DailyRecord> findByUserUserIdAndRecordedAtBetween(Long userId, LocalDate startDate, LocalDate endDate);
     Optional<DailyRecord> findByUserAndRecordedAt(User user, LocalDate date);
     boolean existsByUserAndRecordedAt(User user, LocalDate date);
 }

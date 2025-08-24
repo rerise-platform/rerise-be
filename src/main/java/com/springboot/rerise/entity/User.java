@@ -1,6 +1,7 @@
 package com.springboot.rerise.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.springboot.rerise.config.UserRole;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -24,7 +25,7 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", updatable = false)
-    private Long user_id;
+    private Long userId;
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;

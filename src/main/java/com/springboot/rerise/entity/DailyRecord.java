@@ -11,7 +11,7 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor // 접근 제어자를 public으로 변경
-@Table(name = "daily_records")
+@Table(name = "daily_record")
 public class DailyRecord {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

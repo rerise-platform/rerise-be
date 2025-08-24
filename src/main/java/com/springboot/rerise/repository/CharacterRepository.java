@@ -6,5 +6,5 @@ import com.springboot.rerise.entity.Characters;
 
 @Repository
 public interface CharacterRepository extends JpaRepository<Characters, Long> {
-    Characters findByCharacterType(String type);
+    Characters findFirstByCharacterType(String type);
 }
