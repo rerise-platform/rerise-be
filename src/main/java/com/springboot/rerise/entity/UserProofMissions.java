@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter @Setter
@@ -49,9 +47,5 @@ public class UserProofMissions {
         PENDING,           // 승인 대기
         COMPLETED,         // 완료
         REJECTED           // 거절
-    }
-    public void completeMission() {
-        this.status = WeeklyMissionStatus.COMPLETED;
-        this.completedAt = LocalDateTime.now();
     }
 }
