@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -72,8 +73,6 @@ public class RecordService {
                 .map(this::convertToDto)
                 .orElseThrow(() -> new EntityNotFoundException("No record found for the given date"));
     }
-
-
     private DailyRecordDto convertToDto(DailyRecord record) {
         if (record == null) {
             return null;

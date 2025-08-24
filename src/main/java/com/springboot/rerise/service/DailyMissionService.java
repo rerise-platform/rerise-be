@@ -28,6 +28,7 @@ public class DailyMissionService {
     private final UserRepository userRepository;
     private final DailyRecordRepository dailyRecordRepository;
     private final GeminiService geminiService;
+    private final CharacterGrowthService characterGrowthService;
     
     public List<DailyMissionResponseDTO> generateDailyMissions(Long userId, String userInput) {
         log.info("=== Daily Mission Generation Started ===");
@@ -88,8 +89,9 @@ public class DailyMissionService {
         }
         
         mission.completeMission();
-        
-        updateUserExperience(userId, mission.getMission().getRewardExp());
+
+        characterGrowthService.updateUserExperience(userId, mission.getMission().getRewardExp());
+        //updateUserExperience(userId, mission.getMission().getRewardExp());
         
         userDailyMissionsRepository.save(mission);
         
@@ -199,32 +201,8 @@ public class DailyMissionService {
         }
         return 1;
     }
-    
-    private void updateUserExperience(Long userId, int expGain) {
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
-        
-        if (user.getUserCharacter() != null) {
-            UserCharacter userCharacter = user.getUserCharacter();
-            int currentExp = userCharacter.getExperience();
-            int newExp = currentExp + expGain;
-            
-            userCharacter.setExperience(newExp);
-            
-            int newLevel = calculateLevel(newExp);
-            if (newLevel > userCharacter.getLevel()) {
-                userCharacter.setLevel(newLevel);
-                log.info("사용자 {}의 레벨이 {}로 상승했습니다!", userId, newLevel);
-            }
-            
-            userRepository.save(user);
-        }
-    }
-    
-    private int calculateLevel(int experience) {
-        return Math.max(1, experience / 100 + 1);
-    }
-    
+
+
     private String getRecentDiaryContext(User user) {
         LocalDate today = LocalDate.now();
         LocalDate weekAgo = today.minusDays(7);
