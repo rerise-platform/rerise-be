@@ -10,6 +10,7 @@
    - [일기 기록 API](#일기-기록-api)
    - [미션 시스템 API](#미션-시스템-api)
    - [캐릭터 성장 API](#캐릭터-성장-api)
+   - [장소 추천 API](#장소-추천-api)
 4. [DTO 구조](#dto-구조)
 5. [에러 코드](#에러-코드)
 
@@ -539,6 +540,70 @@ const completeMission = await fetch('/api/missions/complete', {
 
 ---
 
+### 장소 추천 API
+
+#### 1. 서울 서초구 장소 추천
+```http
+GET /api/v1/place/recommend/seocho
+Authorization: Bearer {JWT_TOKEN}
+```
+
+**설명**: 사용자의 최근 7일간 감정 데이터, 키워드, 메모, 온보딩 성향을 종합 분석하여 서울 서초구에서 갈 만한 장소를 추천합니다.
+
+**응답 (성공):**
+```json
+{
+  "recommendation": "🌟 **반포한강공원**\n📍 위치: 서울 서초구 반포동 반포한강공원\n💡 추천 이유: 최근 7일간 평균 감정이 3.2점으로 약간 스트레스를 받고 계신 것 같아요. '휴식', '평온' 키워드가 자주 나타나는 걸 보니 자연 속에서 마음을 정리할 시간이 필요해 보여요...\n⏰ 방문 팁: 저녁 시간대 한강 산책로를 걸으며 석양을 감상해보세요.\n\n🌟 **서래마을**\n📍 위치: 서울 서초구 서래로\n💡 추천 이유: 온보딩 결과 '사회적 연결' 성향이 높으시군요! 프랑스풍 카페거리에서 친구들과 따뜻한 시간을 보내보세요...",
+  "success": true,
+  "message": "장소 추천이 성공적으로 완료되었습니다."
+}
+```
+
+**응답 (실패):**
+```json
+{
+  "recommendation": null,
+  "success": false,
+  "message": "로그인이 필요합니다."
+}
+```
+
+**HTTP 상태 코드:**
+- `200 OK`: 추천 성공
+- `401 Unauthorized`: 인증 오류 (로그인 필요)
+- `404 Not Found`: 사용자 정보 없음
+- `500 Internal Server Error`: 서버 오류
+
+#### 2. 장소 추천 서비스 상태 확인
+```http
+GET /api/v1/place/health
+```
+
+**응답:**
+```json
+"장소 추천 서비스가 정상적으로 작동 중입니다."
+```
+
+### 3. 장소 추천 사용 예시
+```javascript
+// 서울 서초구 장소 추천 요청
+const placeRecommendation = await fetch('/api/v1/place/recommend/seocho', {
+  headers: { 
+    'Authorization': `Bearer ${token}` 
+  }
+});
+
+const recommendationData = await placeRecommendation.json();
+
+if (recommendationData.success) {
+  console.log('추천 장소:', recommendationData.recommendation);
+} else {
+  console.error('오류:', recommendationData.message);
+}
+```
+
+---
+
 ## 주의사항
 
 1. **JWT 토큰 관리**: 토큰을 안전하게 저장하고, 만료 시 재로그인 필요
@@ -550,6 +615,10 @@ const completeMission = await fetch('/api/missions/complete', {
 ---
 
 ## 업데이트 히스토리
+
+- **v1.1** (2025-01-27): 장소 추천 API 추가
+  - Perplexity AI 기반 서울 서초구 장소 추천 기능
+  - 사용자 감정, 키워드, 메모, 성향 데이터 활용한 개인화 추천
 
 - **v1.0** (2025-08-24): 초기 API 명세 작성
   - 인증, 온보딩, 메인 화면, 일기, 미션, 캐릭터 성장 API 포함

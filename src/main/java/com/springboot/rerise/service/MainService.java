@@ -34,7 +34,8 @@ public class MainService {
                 null,
                 null,
                 null,
-                null
+                null,
+                null // dailyMissions
             );
         }
 
@@ -51,7 +52,8 @@ public class MainService {
             characterType,
             characterStage,
             level,
-            growthRate
+            growthRate,
+            null // dailyMissions (필요하다면 별도로 추가)
         );
     }
 

@@ -519,3 +519,58 @@ if (pm.response.code === 200) {
 - **마음나누기**: 감사와 긍정적 마음
 - **공간만들기**: 환경과 일상 정리
 - **사람연결**: 인간관계와 소통
+
+---
+
+## 11. 장소 추천 API (`/api/v1/place`)
+
+> **인증 필요**: Bearer Token 헤더 추가 필요
+
+### 11.1 서울 서초구 장소 추천
+- **Method**: `GET`
+- **URL**: `{{base_url}}/api/v1/place/recommend/seocho`
+- **Headers**:
+  ```
+  Authorization: Bearer {{jwt_token}}
+  ```
+- **설명**: 사용자의 감정 상태, 키워드, 메모, 성향을 기반으로 서울 서초구 지역의 장소를 AI(퍼플렉시티)가 추천
+- **Response**:
+  ```json
+  {
+    "success": true,
+    "message": "장소 추천이 성공적으로 완료되었습니다.",
+    "data": "서초구 추천 장소 정보가 담긴 텍스트 형태의 AI 응답"
+  }
+  ```
+- **Error Response**:
+  - **401 Unauthorized**: 
+    ```json
+    {
+      "success": false,
+      "message": "로그인이 필요합니다.",
+      "data": null
+    }
+    ```
+  - **404 Not Found**:
+    ```json
+    {
+      "success": false,
+      "message": "사용자 정보를 찾을 수 없습니다.",
+      "data": null
+    }
+    ```
+  - **500 Internal Server Error**:
+    ```json
+    {
+      "success": false,
+      "message": "장소 추천 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+      "data": null
+    }
+    ```
+
+### 11.2 장소 추천 서비스 상태 확인
+- **Method**: `GET`
+- **URL**: `{{base_url}}/api/v1/place/health`
+- **Headers**: 없음
+- **설명**: 장소 추천 서비스의 현재 상태를 확인
+- **Response**: `"장소 추천 서비스가 정상적으로 작동 중입니다."`
