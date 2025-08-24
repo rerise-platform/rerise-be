@@ -3,6 +3,7 @@ package com.springboot.rerise.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -13,4 +14,5 @@ public class MainResponseDTO {
     private Integer characterStage;
     private Integer level;
     private Double growthRate; // 성장률 (퍼센트, 0.0 ~ 100.0)
+    private List<DailyMissionResponseDTO> dailyMissions;
 }
