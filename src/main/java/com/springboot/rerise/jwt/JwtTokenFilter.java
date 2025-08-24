@@ -55,13 +55,14 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
         // Jwt Token에서 email 추출
         String email = JwtTokenUtil.getLoginId(token, secretKey);
+        String role = JwtTokenUtil.getRole(token, secretKey);
 
         // 추출한 email로 User 찾기
         User loginUser = userService.getLoginUserByLoginId(email);
 
         // loginUser 정보로 UsernamePasswordAuthenticationToken 발급
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                loginUser.getEmail(), null, List.of(new SimpleGrantedAuthority(loginUser.getRole().name())));
+                email, null, List.of(new SimpleGrantedAuthority(role))); // ⬅️ "ROLE_ADMIN"이 담긴 role 변수 사용
         authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
         // 권한 부여

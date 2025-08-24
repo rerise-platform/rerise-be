@@ -66,7 +66,7 @@ public class JwtLoginController {
             return "로그인 아이디 또는 비밀번호가 틀렸습니다.";
         }
 
-        String jwtToken = JwtTokenUtil.createToken(user.getEmail(), secretKey, expireTimeMs);
+        String jwtToken = JwtTokenUtil.createToken(user.getEmail(), user.getRole(), secretKey, expireTimeMs);
         return jwtToken;
     }
 }
