@@ -522,13 +522,13 @@ if (pm.response.code === 200) {
 
 ---
 
-## 11. 장소 추천 API (`/api/v1/place`)
+## 11. 장소 및 프로그램 추천 API (`/api/v1/recommendation`)
 
 > **인증 필요**: Bearer Token 헤더 추가 필요
 
 ### 11.1 서울 서초구 장소 추천
 - **Method**: `GET`
-- **URL**: `{{base_url}}/api/v1/place/recommend/seocho`
+- **URL**: `{{base_url}}/api/v1/recommendation/places/seocho`
 - **Headers**:
   ```
   Authorization: Bearer {{jwt_token}}
@@ -568,9 +568,72 @@ if (pm.response.code === 200) {
     }
     ```
 
-### 11.2 장소 추천 서비스 상태 확인
+### 11.2 사용자 맞춤 프로그램 추천
 - **Method**: `GET`
-- **URL**: `{{base_url}}/api/v1/place/health`
+- **URL**: `{{base_url}}/api/v1/recommendation/programs`
+- **Headers**:
+  ```
+  Authorization: Bearer {{jwt_token}}
+  ```
+- **설명**: 사용자의 레벨과 성향에 맞는 프로그램 3개를 추천 (청년/문화 프로그램 구분)
+- **Response**:
+  ```json
+  {
+    "programs": [
+      {
+        "programName": "서초구 청년 취업 지원 프로그램",
+        "category": "청년",
+        "target": "만 18~39세 청년",
+        "recruitmentPeriod": "2024-03-01 ~ 2024-03-31",
+        "location": "서초구 청년센터",
+        "url": "https://example.com/program1"
+      },
+      {
+        "programName": "서초문화원 문화체험 프로그램",
+        "category": "문화",
+        "target": "서초구민 누구나",
+        "recruitmentPeriod": "상시모집",
+        "location": "서초문화원",
+        "url": "https://example.com/program2"
+      }
+    ],
+    "recommendationReason": "회원님의 레벨이 높아 취업 및 커리어 관련 청년 프로그램을 우선적으로 추천드렸습니다.",
+    "success": true,
+    "message": "프로그램 추천이 성공적으로 완료되었습니다."
+  }
+  ```
+- **Error Response**:
+  - **401 Unauthorized**: 
+    ```json
+    {
+      "programs": null,
+      "recommendationReason": null,
+      "success": false,
+      "message": "로그인이 필요합니다."
+    }
+    ```
+  - **404 Not Found**:
+    ```json
+    {
+      "programs": null,
+      "recommendationReason": null,
+      "success": false,
+      "message": "사용자 정보를 찾을 수 없습니다."
+    }
+    ```
+  - **500 Internal Server Error**:
+    ```json
+    {
+      "programs": null,
+      "recommendationReason": null,
+      "success": false,
+      "message": "프로그램 추천 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+    }
+    ```
+
+### 11.3 추천 서비스 상태 확인
+- **Method**: `GET`
+- **URL**: `{{base_url}}/api/v1/recommendation/health`
 - **Headers**: 없음
-- **설명**: 장소 추천 서비스의 현재 상태를 확인
-- **Response**: `"장소 추천 서비스가 정상적으로 작동 중입니다."`
+- **설명**: 장소 및 프로그램 추천 서비스의 현재 상태를 확인
+- **Response**: `"장소 및 프로그램 추천 서비스가 정상적으로 작동 중입니다."`

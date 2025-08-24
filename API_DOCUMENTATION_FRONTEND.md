@@ -544,7 +544,7 @@ const completeMission = await fetch('/api/missions/complete', {
 
 #### 1. 서울 서초구 장소 추천
 ```http
-GET /api/v1/place/recommend/seocho
+GET /api/v1/recommendation/places/seocho
 Authorization: Bearer {JWT_TOKEN}
 ```
 
@@ -574,31 +574,119 @@ Authorization: Bearer {JWT_TOKEN}
 - `404 Not Found`: 사용자 정보 없음
 - `500 Internal Server Error`: 서버 오류
 
-#### 2. 장소 추천 서비스 상태 확인
+#### 2. 사용자 맞춤 프로그램 추천
 ```http
-GET /api/v1/place/health
+GET /api/v1/recommendation/programs
+Authorization: Bearer {JWT_TOKEN}
+```
+
+**설명**: 사용자의 레벨과 온보딩 성향을 기반으로 청년 및 문화 프로그램을 3개 추천합니다.
+
+**추천 로직:**
+- 레벨 5 이상: 취업/커리어 관련 청년 프로그램 우선 추천
+- 레벨 5 미만: 문화 및 여가 프로그램 우선 추천
+- 온보딩 미완료: 문화 프로그램 추천
+
+**응답 (성공):**
+```json
+{
+  "programs": [
+    {
+      "programName": "커리어 부트캠프_카카오뱅크",
+      "category": "청년",
+      "target": "청년",
+      "recruitmentPeriod": "2025-08-20 00시 00분 ~ 2025-09-02 11시 00분",
+      "location": "서초청년센터 커뮤니티룸1",
+      "url": "https://www.seochoyc.org/sub_program/operate_view.php?idx=220"
+    },
+    {
+      "programName": "출근하게 만들어줄게!",
+      "category": "청년", 
+      "target": "청년",
+      "recruitmentPeriod": "2025-08-21 00시 00분 ~ 2025-09-02 11시 00분",
+      "location": "서초청년센터 컨퍼런스홀",
+      "url": "https://www.seochoyc.org/sub_program/operate_view.php?idx=219"
+    },
+    {
+      "programName": "서리풀 뮤직 라운지 국악 강연 프로그램",
+      "category": "문화",
+      "target": "서초구민 우대",
+      "recruitmentPeriod": "2025-08-30 ~ 2025-10-18",
+      "location": "서초구 전역 서리풀아트스튜디오",
+      "url": "https://www.seochocf.or.kr/site/main/seocho/show/view?show_idx=871"
+    }
+  ],
+  "recommendationReason": "회원님의 레벨이 높아 취업 및 커리어 관련 청년 프로그램을 우선적으로 추천드렸습니다.",
+  "success": true,
+  "message": "프로그램 추천이 성공적으로 완료되었습니다."
+}
+```
+
+**응답 (실패):**
+```json
+{
+  "programs": null,
+  "recommendationReason": null,
+  "success": false,
+  "message": "로그인이 필요합니다."
+}
+```
+
+**HTTP 상태 코드:**
+- `200 OK`: 추천 성공
+- `401 Unauthorized`: 인증 오류 (로그인 필요)
+- `404 Not Found`: 사용자 정보 없음
+- `500 Internal Server Error`: 서버 오류
+
+#### 3. 추천 서비스 상태 확인
+```http
+GET /api/v1/recommendation/health
 ```
 
 **응답:**
 ```json
-"장소 추천 서비스가 정상적으로 작동 중입니다."
+"장소 및 프로그램 추천 서비스가 정상적으로 작동 중입니다."
 ```
 
-### 3. 장소 추천 사용 예시
+### 4. 추천 서비스 사용 예시
 ```javascript
-// 서울 서초구 장소 추천 요청
-const placeRecommendation = await fetch('/api/v1/place/recommend/seocho', {
+// 1. 서울 서초구 장소 추천 요청
+const placeRecommendation = await fetch('/api/v1/recommendation/places/seocho', {
   headers: { 
     'Authorization': `Bearer ${token}` 
   }
 });
 
-const recommendationData = await placeRecommendation.json();
+const placeData = await placeRecommendation.json();
 
-if (recommendationData.success) {
-  console.log('추천 장소:', recommendationData.recommendation);
+if (placeData.success) {
+  console.log('추천 장소:', placeData.recommendation);
 } else {
-  console.error('오류:', recommendationData.message);
+  console.error('장소 추천 오류:', placeData.message);
+}
+
+// 2. 사용자 맞춤 프로그램 추천 요청
+const programRecommendation = await fetch('/api/v1/recommendation/programs', {
+  headers: { 
+    'Authorization': `Bearer ${token}` 
+  }
+});
+
+const programData = await programRecommendation.json();
+
+if (programData.success) {
+  console.log('추천 프로그램:', programData.programs);
+  console.log('추천 이유:', programData.recommendationReason);
+  
+  // 프로그램 목록 표시
+  programData.programs.forEach(program => {
+    console.log(`${program.programName} (${program.category})`);
+    console.log(`대상: ${program.target}`);
+    console.log(`위치: ${program.location}`);
+    console.log(`URL: ${program.url}`);
+  });
+} else {
+  console.error('프로그램 추천 오류:', programData.message);
 }
 ```
 
@@ -615,6 +703,10 @@ if (recommendationData.success) {
 ---
 
 ## 업데이트 히스토리
+
+- **v1.2** (2025-01-27): 프로그램 추천 API 추가
+  - CSV 데이터 기반 청년/문화 프로그램 추천 기능
+  - 사용자 레벨과 온보딩 성향에 따른 맞춤형 추천 로직
 
 - **v1.1** (2025-01-27): 장소 추천 API 추가
   - Perplexity AI 기반 서울 서초구 장소 추천 기능
