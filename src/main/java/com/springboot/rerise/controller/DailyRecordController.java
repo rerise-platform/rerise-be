@@ -1,12 +1,16 @@
 package com.springboot.rerise.controller;
 
 import com.springboot.rerise.dto.DailyRecordDto;
+import com.springboot.rerise.entity.User;
 import com.springboot.rerise.service.RecordService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;

@@ -22,11 +22,14 @@ import java.util.List;
 public class JwtTokenFilter extends OncePerRequestFilter {
     private final UserService userService;
     private final String secretKey;
+    private final JwtTokenBlocklist jwtTokenBlocklist;
 
     public JwtTokenFilter(UserService userService,
-                          @Value("${springboot.jwt.secret}") String secretKey) {
+                          @Value("${springboot.jwt.secret}") String secretKey,
+                          JwtTokenBlocklist jwtTokenBlocklist) {
         this.userService = userService;
         this.secretKey = secretKey;
+        this.jwtTokenBlocklist = jwtTokenBlocklist;
     }
 
     @Override
@@ -47,6 +50,12 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         // 전송받은 값에서 'Bearer ' 뒷부분(Jwt Token) 추출
         String token = authorizationHeader.split(" ")[1];
 
+        if (jwtTokenBlocklist.isBlocklisted(token)) {
+            // 토큰이 차단 목록에 있으면, 인증을 거부하고 다음 필터로 진행
+            // HTTP 401 Unauthorized를 직접 반환할 수도 있지만, 필터 체인에 따라 처리
+            filterChain.doFilter(request, response);
+            return;
+        }
         // 전송받은 Jwt Token이 만료되었으면 => 다음 필터 진행(인증 X)
         if (JwtTokenUtil.isExpired(token, secretKey)) {
             filterChain.doFilter(request, response);
@@ -62,7 +71,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
         // loginUser 정보로 UsernamePasswordAuthenticationToken 발급
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                email, null, List.of(new SimpleGrantedAuthority(role))); // ⬅️ "ROLE_ADMIN"이 담긴 role 변수 사용
+                email, null, List.of(new SimpleGrantedAuthority(role)));
         authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
         // 권한 부여

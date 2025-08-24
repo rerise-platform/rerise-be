@@ -34,9 +34,9 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/signup", "/api/v1/login").permitAll()
-                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN") // ⬅️ 구체적인 경로를 먼저 정의
-                        .requestMatchers("/api/v1/**", "/api/missions/**").authenticated() // ⬅️ 그 다음 일반적인 경로를 정의
+                        .requestMatchers("/api/v1/signup", "/api/v1/login", "/api/v1/logout").permitAll()
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/**", "/api/missions/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .build();
