@@ -26,6 +26,7 @@ public class ProofMissionService {
     private final UserProofMissionsRepository userProofMissionsRepository;
     private final MissionsRepository missionsRepository;
     private final UserRepository userRepository;
+    private final CharacterGrowthService characterGrowthService;
 
     //인증자료 제출
     public void submitProof(Long userId, ProofSubmitRequestDto requestDto) {
@@ -38,14 +39,14 @@ public class ProofMissionService {
         proofMission.setUser(user);
         proofMission.setMission(mission);
         proofMission.setProofData(requestDto.getProofData());
-        proofMission.setStatus(UserProofMissions.WeeklyMissionStatus.PENDING_APPROVAL);
+        proofMission.setStatus(UserProofMissions.WeeklyMissionStatus.PENDING);
 
         userProofMissionsRepository.save(proofMission);
     }
     //승인 대기 중인 미션 목록 조회
     public List<SubmissionListDto> getPendingSubmissions() {
         List<UserProofMissions> pendingMissions = userProofMissionsRepository
-                .findByStatus(UserProofMissions.WeeklyMissionStatus.PENDING_APPROVAL);
+                .findByStatus(UserProofMissions.WeeklyMissionStatus.PENDING);
 
         return pendingMissions.stream()
                 .map(mission -> SubmissionListDto.builder()
@@ -62,7 +63,7 @@ public class ProofMissionService {
                 .orElseThrow(() -> new RuntimeException("해당 미션을 찾을 수 없습니다."));
 
         return SubmissionDetailDto.builder()
-                .userId(mission.getUser().getUserId())
+                .userId(mission.getUser().getUser_id())
                 .nickname(mission.getUser().getNickname())
                 .email(mission.getUser().getEmail())
                 .userProofMissionId(mission.getUserWeeklyMissionId())
@@ -77,32 +78,33 @@ public class ProofMissionService {
         UserProofMissions proofMission = userProofMissionsRepository.findById(approvalDto.getUserProofMissionId())
                 .orElseThrow(() -> new RuntimeException("인증 미션 기록을 찾을 수 없습니다."));
 
-        if (proofMission.getStatus() != UserProofMissions.WeeklyMissionStatus.PENDING_APPROVAL) {
+        if (proofMission.getStatus() != UserProofMissions.WeeklyMissionStatus.PENDING) {
             throw new IllegalStateException("승인 대기 중인 미션이 아닙니다.");
         }
+        String requestApprove = approvalDto.getApproved();
         //미션 인증 승인
-        if (approvalDto.isApproved()) {
+        if ("승인".equals(requestApprove)) {
             proofMission.setStatus(UserProofMissions.WeeklyMissionStatus.COMPLETED);
             proofMission.setCompletedAt(LocalDateTime.now());
             userProofMissionsRepository.save(proofMission);
 
-            updateUserExperience(proofMission.getUser().getUserId(), proofMission.getMission().getRewardExp());
+            characterGrowthService.updateUserExperience(proofMission.getUser().getUser_id(), proofMission.getMission().getRewardExp());
 
-            User updatedUser = userRepository.findById(proofMission.getUser().getUserId()).get();
+            User updatedUser = userRepository.findById(proofMission.getUser().getUser_id()).get();
             return createSuccessResponse(updatedUser, proofMission.getMission());
-        } else { //미션 인증 거절
+        } else if("거절".equals(requestApprove)){ //미션 인증 거절
             proofMission.setStatus(UserProofMissions.WeeklyMissionStatus.REJECTED);
             userProofMissionsRepository.save(proofMission);
-            // 컨트롤러에서 null을 받고 실패 응답을 보내도록 처리
-            return null;
+
+            return null; // 컨트롤러에서 null을 받고 실패 응답을 보내도록 처리
+        }
+        else{
+            throw new IllegalArgumentException("잘못된 approved 값입니다." + requestApprove);
         }
     }
 
-    private int calculateLevel(int experience) {
-        return Math.max(1, (experience / 100) + 1);
-    }
 
-    private void updateUserExperience(Long userId, int expGain) {
+   /* private void updateUserExperience(Long userId, int expGain) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
@@ -120,7 +122,7 @@ public class ProofMissionService {
             }
             userRepository.save(user);
         }
-    }
+    }*/
 
     private MissionRewardResponseDto createSuccessResponse(User user, Missions mission) {
         UserCharacter character = user.getUserCharacter();
@@ -128,7 +130,7 @@ public class ProofMissionService {
         int userExp = (character != null) ? character.getExperience() : 0;
 
         return MissionRewardResponseDto.builder()
-                .userId(user.getUserId())
+                .userId(user.getUser_id())
                 .missionId(mission.getMissionId())
                 .isCompleted(true)
                 .message("미션이 성공적으로 완료되었습니다!")

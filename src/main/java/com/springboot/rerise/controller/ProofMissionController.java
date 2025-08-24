@@ -3,6 +3,7 @@ package com.springboot.rerise.controller;
 import com.springboot.rerise.dto.*;
 import com.springboot.rerise.entity.User;
 import com.springboot.rerise.service.ProofMissionService;
+import com.springboot.rerise.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,14 +20,17 @@ import java.util.Map;
 public class ProofMissionController {
 
     private final ProofMissionService proofMissionService;
+    private final UserService userService;
 
     // 사용자가 인증 자료를 제출하는 엔드포인트
     @PostMapping("/weekly/submit")
     public ResponseEntity<String> submitProof(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal String email,
             @RequestBody ProofSubmitRequestDto requestDto) {
+        User user = userService.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
-        proofMissionService.submitProof(user.getUserId(), requestDto);
+        proofMissionService.submitProof(user.getUser_id(), requestDto);
         return ResponseEntity.ok("인증 자료가 성공적으로 제출되었습니다. 관리자의 승인을 기다려주세요.");
     }
     //승인 대기 중인 미션 목록 조회
@@ -36,9 +40,9 @@ public class ProofMissionController {
     }
 
     //승인 대기 중인 미션 상세 조회
-    @GetMapping("/submissions/{userWeeklyMissionId}")
-    public ResponseEntity<SubmissionDetailDto> getSubmissionDetails(@PathVariable Long id) {
-        return ResponseEntity.ok(proofMissionService.getSubmissionDetails(id));
+    @GetMapping("/submissions/{userProofMissionId}")
+    public ResponseEntity<SubmissionDetailDto> getSubmissionDetails(@PathVariable Long userProofMissionId) {
+        return ResponseEntity.ok(proofMissionService.getSubmissionDetails(userProofMissionId));
     }
 
     // 관리자가 미션을 승인/거절

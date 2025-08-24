@@ -35,7 +35,7 @@ public class UserProofMissions {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private WeeklyMissionStatus status = WeeklyMissionStatus.IN_PROGRESS; // 상태 초기값
+    private WeeklyMissionStatus status = WeeklyMissionStatus.PROGRESS; // 상태 초기값
 
     @CreationTimestamp // 엔티티가 처음 저장될 때 자동으로 현재 시간을 기록
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -45,9 +45,13 @@ public class UserProofMissions {
 
 
     public enum WeeklyMissionStatus {
-        IN_PROGRESS,       // 진행 중
-        PENDING_APPROVAL,  // 승인 대기
+        PROGRESS,       // 진행 중
+        PENDING,           // 승인 대기
         COMPLETED,         // 완료
         REJECTED           // 거절
+    }
+    public void completeMission() {
+        this.status = WeeklyMissionStatus.COMPLETED;
+        this.completedAt = LocalDateTime.now();
     }
 }

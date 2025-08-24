@@ -5,5 +5,5 @@ import lombok.Getter;
 @Getter
 public class ProofApprovalRequestDto {
     private Long userProofMissionId;
-    private boolean isApproved;
+    private String approved;
 }

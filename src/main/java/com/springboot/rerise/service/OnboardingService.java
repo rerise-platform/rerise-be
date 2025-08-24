@@ -62,7 +62,7 @@ public class OnboardingService {
         User currentUser = userService.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
 
-        Long userId = currentUser.getUserId();
+        Long userId = currentUser.getUser_id();
 
         //1. 캐릭터별 점수 계산
         Map<String, Integer> characterScores = new HashMap<>();
