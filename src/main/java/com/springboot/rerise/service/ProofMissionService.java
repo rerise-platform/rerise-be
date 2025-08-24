@@ -63,7 +63,7 @@ public class ProofMissionService {
                 .orElseThrow(() -> new RuntimeException("해당 미션을 찾을 수 없습니다."));
 
         return SubmissionDetailDto.builder()
-                .userId(mission.getUser().getUser_id())
+                .userId(mission.getUser().getUserId())
                 .nickname(mission.getUser().getNickname())
                 .email(mission.getUser().getEmail())
                 .userProofMissionId(mission.getUserWeeklyMissionId())
@@ -88,9 +88,9 @@ public class ProofMissionService {
             proofMission.setCompletedAt(LocalDateTime.now());
             userProofMissionsRepository.save(proofMission);
 
-            characterGrowthService.updateUserExperience(proofMission.getUser().getUser_id(), proofMission.getMission().getRewardExp());
+            characterGrowthService.updateUserExperience(proofMission.getUser().getUserId(), proofMission.getMission().getRewardExp());
 
-            User updatedUser = userRepository.findById(proofMission.getUser().getUser_id()).get();
+            User updatedUser = userRepository.findById(proofMission.getUser().getUserId()).get();
             return createSuccessResponse(updatedUser, proofMission.getMission());
         } else if("거절".equals(requestApprove)){ //미션 인증 거절
             proofMission.setStatus(UserProofMissions.WeeklyMissionStatus.REJECTED);
@@ -130,7 +130,7 @@ public class ProofMissionService {
         int userExp = (character != null) ? character.getExperience() : 0;
 
         return MissionRewardResponseDto.builder()
-                .userId(user.getUser_id())
+                .userId(user.getUserId())
                 .missionId(mission.getMissionId())
                 .isCompleted(true)
                 .message("미션이 성공적으로 완료되었습니다!")

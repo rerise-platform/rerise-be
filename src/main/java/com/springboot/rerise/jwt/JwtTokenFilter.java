@@ -65,6 +65,11 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         // Jwt Token에서 email 추출
         String email = JwtTokenUtil.getLoginId(token, secretKey);
         String role = JwtTokenUtil.getRole(token, secretKey);
+        
+        // role이 null이거나 빈 문자열인 경우 기본값 설정
+        if (role == null || role.trim().isEmpty()) {
+            role = "ROLE_USER";
+        }
 
         // 추출한 email로 User 찾기
         User loginUser = userService.getLoginUserByLoginId(email);
