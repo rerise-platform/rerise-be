@@ -71,7 +71,7 @@ public class RecordService {
         // 3. User 엔티티를 사용하여 기록을 조회합니다.
         return recordRepository.findByUserAndRecordedAt(currentUser, date)
                 .map(this::convertToDto)
-                .orElseThrow(() -> new EntityNotFoundException("No record found for the given date"));
+                .orElse(null);
     }
     private DailyRecordDto convertToDto(DailyRecord record) {
         if (record == null) {

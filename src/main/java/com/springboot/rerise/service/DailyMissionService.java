@@ -40,13 +40,10 @@ public class DailyMissionService {
         LocalDate today = LocalDate.now();
         log.info("Today: {}", today);
         
-        boolean existsToday = userDailyMissionsRepository.existsByUserUserIdAndAssignedDate(userId, today);
-        log.info("Missions already exist for today: {}", existsToday);
-        
-        if (existsToday) {
-            List<DailyMissionResponseDTO> todayMissions = getTodayMissions(userId);
-            log.info("Returning existing missions count: {}", todayMissions.size());
-            return todayMissions;
+        List<DailyMissionResponseDTO> existingMissions = getTodayMissions(userId);
+        if (!existingMissions.isEmpty() && existingMissions.size() >= 5) {
+            log.info("Returning existing missions count: {}", existingMissions.size());
+            return existingMissions;
         }
         
         String recentDiaryContext = getRecentDiaryContext(user);
