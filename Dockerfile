@@ -3,15 +3,16 @@ FROM eclipse-temurin:17-jdk AS build
 WORKDIR /workspace
 
 # Gradle 캐시 최적화: 먼저 래퍼/설정만 복사
-COPY gradlew settings.gradle* build.gradle* gradle/ ./
-RUN chmod +x gradlew || true
+COPY gradlew settings.gradle* build.gradle* ./
+COPY gradle/ gradle/
+RUN chmod +x gradlew
 
 # 의존성 프리캐시(소스 없이 메타만으로 캐시 생성)
 RUN ./gradlew --no-daemon dependencies || true
 
 # 실제 소스 복사 후 빌드 (테스트는 해커톤 기준으로 스킵 권장)
 COPY . .
-RUN ./gradlew --no-daemon clean bootJar -x test
+RUN chmod +x gradlew && ./gradlew --no-daemon clean bootJar -x test
 
 # ---- Run stage (JRE 17) ----
 FROM eclipse-temurin:17-jre

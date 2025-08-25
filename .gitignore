@@ -16,6 +16,11 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+/data.sql
+**/*.csv
+src/main/resources/data.sql
+src/main/resources/*.csv
+
 # Cache of project
 .gradletasknamecache
 
@@ -55,3 +60,12 @@ out/
 .vscode/
 .env
 
+.git
+.github
+.gradle
+build
+out
+**/*.iml
+*.log
+*.DS_Store
+!.github/workflows/*.yml
