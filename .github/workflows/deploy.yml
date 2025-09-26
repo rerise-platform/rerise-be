@@ -2,10 +2,9 @@ name: Deploy to EC2
 
 on:
   workflow_run:
-    workflows: ["BE CI - Build & Push to GHCR (Java 17)"] # CI 워크플로 이름과 일치해야 함
-    types:
-      - completed
-  workflow_dispatch: {}  # 필요시 수동 실행도 가능
+    workflows: ["BE CI - Build & Push to GHCR (Java 17)"]  # 위 CI 이름과 정확히 일치해야 함
+    types: [completed]
+  workflow_dispatch: {}
 
 jobs:
   deploy:
@@ -13,18 +12,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: SSH into EC2 & Deploy
+      - name: SSH into EC2 & Deploy (backend only)
         uses: appleboy/ssh-action@v1.2.0
         with:
-          host: ${{ secrets.EC2_HOST }}     # 예: 13.125.98.132
-          username: ${{ secrets.EC2_USER }} # 예: ec2-user
-          key: ${{ secrets.EC2_SSH_KEY }}   # ssh 개인키 (authorized_keys에 공개키 등록 필요)
+          host: ${{ secrets.EC2_HOST }}      
+          username: ${{ secrets.EC2_USER }} 
+          key: ${{ secrets.EC2_SSH_KEY }}     
           script_stop: true
           script: |
             set -e
-            cd /srv/app
-            echo "${{ secrets.GHCR_TOKEN || secrets.GITHUB_TOKEN }}" \
-              | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-            docker compose -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.prod.yml up -d
-            docker image prune -f
+            cd /home/ubuntu/deploy
+            # GHCR 로그인(PAT 필요: read:packages + SSO 승인)
+            echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+            # backend 서비스만 새 이미지 pull & 재기동
+            docker compose pull backend
+            docker compose up -d backend
+
+            # 상태 확인
+            docker compose ps
