@@ -32,6 +32,13 @@ jobs:
         with:
           cache-read-only: false
 
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          install: true
+          driver: docker-container
+          # driver-opts: image=moby/buildkit:latest  # (옵션)
+
       # 필요시
       # - name: Run tests
       #   run: ./gradlew --no-daemon test
