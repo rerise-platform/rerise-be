@@ -1,4 +1,5 @@
 name: BE CI - Build & Push to GHCR (Java 17)
+
 on:
   push:
     branches: ["main"]
@@ -6,7 +7,7 @@ on:
 
 permissions:
   contents: read
-  packages: write
+  packages: write  # GHCR push에 필요
 
 env:
   REGISTRY: ghcr.io
@@ -26,13 +27,12 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      # Gradle 캐시(Wrapper 자동 인식)
-      - name: Setup Gradle
+      - name: Setup Gradle (cache)
         uses: gradle/actions/setup-gradle@v3
         with:
           cache-read-only: false
 
-      # (선택) 로컬 테스트를 파이프라인에서 돌리고 싶으면 주석 해제
+      # 필요시
       # - name: Run tests
       #   run: ./gradlew --no-daemon test
 
@@ -41,7 +41,7 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_TOKEN || secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}  
 
       - name: Extract Docker metadata (tags, labels)
         id: meta
@@ -50,13 +50,16 @@ jobs:
           images: ${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=latest
-            type=sha
+            type=sha,format=long
 
-      - name: Build & Push image (Dockerfile at repo root)
+      - name: Build & Push image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
           push: true
+          platforms: linux/amd64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
