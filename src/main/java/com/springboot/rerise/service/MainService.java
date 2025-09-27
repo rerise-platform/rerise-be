@@ -1,5 +1,6 @@
 package com.springboot.rerise.service;
 
+import com.springboot.rerise.dto.DailyMissionResponseDTO;
 import com.springboot.rerise.dto.MainResponseDTO;
 import com.springboot.rerise.entity.User;
 import com.springboot.rerise.entity.UserCharacter;
@@ -9,15 +10,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional(readOnly = true)
 public class MainService {
 
     @Autowired
     private UserRepository userRepository;
-    
+
     @Autowired
     private CharacterGrowthService characterGrowthService;
+
+    @Autowired
+    private DailyMissionService dailyMissionService;
 
     public MainResponseDTO getMainInfo(String email) {
         // 사용자 조회
@@ -28,14 +34,15 @@ public class MainService {
         UserCharacter userCharacter = user.getUserCharacter();
         
         if (userCharacter == null) {
-            // 온보딩을 완료하지 않은 사용자
+            // 온보딩을 완료하지 않은 사용자 - 데일리미션만 조회
+            List<DailyMissionResponseDTO> dailyMissions = dailyMissionService.getTodayMissions(user.getUserId());
             return new MainResponseDTO(
                 user.getNickname(),
                 null,
                 null,
                 null,
                 null,
-                null // dailyMissions
+                dailyMissions
             );
         }
 
@@ -47,13 +54,16 @@ public class MainService {
         // 성장률 계산
         Double growthRate = calculateGrowthRate(userCharacter);
 
+        // 데일리 미션 조회
+        List<DailyMissionResponseDTO> dailyMissions = dailyMissionService.getTodayMissions(user.getUserId());
+
         return new MainResponseDTO(
             user.getNickname(),
             characterType,
             characterStage,
             level,
             growthRate,
-            null // dailyMissions (필요하다면 별도로 추가)
+            dailyMissions
         );
     }
 
