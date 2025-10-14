@@ -67,7 +67,7 @@ public class MainService {
         );
     }
 
-    private Double calculateGrowthRate(UserCharacter userCharacter) {
+    public Double calculateGrowthRate(UserCharacter userCharacter) {
         int currentLevel = userCharacter.getLevel();
         int currentExp = userCharacter.getExperience();
         
