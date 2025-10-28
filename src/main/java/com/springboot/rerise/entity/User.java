@@ -9,8 +9,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.sql.Date;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -44,6 +44,19 @@ public class User implements UserDetails {
     @JsonManagedReference
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private UserCharacter userCharacter;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean activityPushEnabled = true; // 활동, 미션 알림 (앱 푸시)
+
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean progressSmsEnabled = true; // 누적 진행 상황 알림 (SMS)
+
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean moodCheckEnabled = true; // 마음 상태 체크 알림 (SMS)
+
 
     /*@Builder
     public User(String email, String password, String nickname, Date birth, UserRole role) {
@@ -88,5 +101,19 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-}
 
+
+    public void updateUser(String newNickname, java.util.Date newBirthday) {
+        if (newNickname != null && !newNickname.isBlank()) {
+            this.nickname = newNickname;
+        }
+        if (newBirthday != null) {
+            this.birth = newBirthday;
+        }
+    }
+    public void updateNotificationSettings(boolean activityPush, boolean progressSms, boolean moodCheck) {
+        this.activityPushEnabled = activityPush;
+        this.progressSmsEnabled = progressSms;
+        this.moodCheckEnabled = moodCheck;
+    }
+}
