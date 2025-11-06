@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  * 장소 및 프로그램 추천 API 컨트롤러
- * 사용자의 감정, 키워드, 메모, 성향을 기반으로 서울 서초구 장소와 프로그램을 추천합니다.
+ * 사용자의 감정, 키워드, 메모, 성향을 기반으로 용인시 기흥구 장소와 프로그램을 추천합니다.
  */
 @Slf4j
 @RestController
@@ -26,13 +26,13 @@ public class PlaceRecommendationController {
     private final ProgramRecommendationService programRecommendationService;
 
     /**
-     * 서울 서초구 장소 추천 API
-     * 
+     * 용인시 기흥구 장소 추천 API
+     *
      * @return 퍼플렉시티 AI가 추천한 장소 정보
      */
     @GetMapping("/places/seocho")
     public ResponseEntity<PlaceRecommendationResponseDTO> recommendPlacesInSeocho() {
-        log.info("서울 서초구 장소 추천 요청이 들어왔습니다.");
+        log.info("용인시 기흥구 장소 추천 요청이 들어왔습니다.");
         
         try {
             // 장소 추천 서비스 호출

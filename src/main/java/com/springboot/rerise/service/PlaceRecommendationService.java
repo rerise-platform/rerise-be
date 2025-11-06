@@ -30,7 +30,7 @@ public class PlaceRecommendationService {
     private final PerplexityService perplexityService;
 
     /**
-     * 서울 서초구 장소 추천을 받는 메인 메서드
+     * 용인시 기흥구 장소 추천을 받는 메인 메서드
      */
     public String getPlaceRecommendation() {
         // 현재 로그인한 사용자 정보 가져오기
@@ -209,22 +209,22 @@ public class PlaceRecommendationService {
      */
     private String createSystemPrompt() {
         return """
-                당신은 친근하고 따뜻한 장소 추천 전문가입니다. 
-                사용자의 최근 감정 상태, 키워드, 메모 내용, 그리고 성향을 종합적으로 분석하여 
-                서울 서초구에서 갈 만한 장소를 1곳 추천해주세요.
-                
+                당신은 친근하고 따뜻한 장소 추천 전문가입니다.
+                사용자의 최근 감정 상태, 키워드, 메모 내용, 그리고 성향을 종합적으로 분석하여
+                용인시 기흥구에서 갈 만한 장소를 1곳 추천해주세요.
+
                 추천 조건:
-                1. 서울 서초구 내의 실제 존재하는 장소만 추천
+                1. 용인시 기흥구 내의 실제 존재하는 장소만 추천
                 2. 사용자의 현재 감정 상태에 맞는 장소
                 3. 사용자의 키워드와 메모 내용을 반영한 장소
                 4. 사용자의 성향(온보딩 답변)을 고려한 장소
-                
+
                 응답 형식:
-                🌟 **[장소명]** 
+                🌟 **[장소명]**
                 📍 위치: [구체적 주소](https://map.naver.com/v5/search/[구체적 주소 URL 인코딩])
                 💡 추천 이유: [사용자의 감정/키워드/메모/성향을 구체적으로 언급하며 친근하게 설명]
                 ⏰ 방문 팁: [언제 가면 좋은지, 주의사항 등]
-                
+
                 말투는 친구처럼 따뜻하고 친근하게 해주세요.
                 """;
     }
@@ -234,18 +234,18 @@ public class PlaceRecommendationService {
      */
     private String createUserPrompt(UserDataSummary userDataSummary) {
         return String.format("""
-                안녕하세요! 서울 서초구에서 갈 만한 곳을 추천받고 싶어요.
-                
+                안녕하세요! 용인시 기흥구에서 갈 만한 곳을 추천받고 싶어요.
+
                 📊 **최근 7일간 나의 상태:**
                 - 감정 상태: %s
                 - %s
                 - %s
                 - 나의 성향: %s
-                
-                이런 나에게 서울 서초구에서 갈 만한 곳을 추천해주세요!
-                """, 
+
+                이런 나에게 용인시 기흥구에서 갈 만한 곳을 추천해주세요!
+                """,
                 userDataSummary.getEmotionSummary(),
-                userDataSummary.getKeywordSummary(), 
+                userDataSummary.getKeywordSummary(),
                 userDataSummary.getMemoSummary(),
                 userDataSummary.getPersonalitySummary());
     }
