@@ -13,6 +13,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import jakarta.annotation.PostConstruct;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +30,11 @@ public class PlaceRecommendationService {
     private final UserMissionProfileRepository userMissionProfileRepository;
     private final UserService userService;
     private final PerplexityService perplexityService;
+
+    @PostConstruct
+    public void init() {
+        log.info("PlaceRecommendationService loaded version=2025-11-13-test");
+    }
 
     /**
      * 용인시 기흥구 장소 추천을 받는 메인 메서드

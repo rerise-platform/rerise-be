@@ -32,6 +32,9 @@ dependencies {
     // OpenAPI (Swagger UI)
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
 
+    // Jakarta Annotations
+    implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1'
+
     // Utilities
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
